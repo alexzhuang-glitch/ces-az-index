@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CES-AZ-INDEX | Innovation Awards Database 2024-2026</title>
+    <meta name="description" content="Comprehensive database of 1,432 CES Innovation Awards products from 2024-2026. Analyze hot tracks, regional distribution, and technology trends.">
+    <meta name="keywords" content="CES, Innovation Awards, Technology Trends, AI, Robotics, XR, Database">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+        }
+        .card-hover { 
+            transition: all 0.3s ease; 
+        }
+        .card-hover:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15); 
+        }
+        .tab-active {
+            color: #7c3aed;
+            border-bottom: 2px solid #7c3aed;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #7c3aed;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg text-white">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="text-center md:text-left mb-4 md:mb-0">
+                    <h1 class="text-3xl md:text-4xl font-bold mb-2">CES-AZ-INDEX</h1>
+                    <p class="text-lg opacity-90">Innovation Awards Database 2024-2026</p>
+                </div>
+                <div class="text-center md:text-right">
+                    <div class="text-4xl md:text-5xl font-bold" id="total-count">--</div>
+                    <div className="text-sm opacity-80">Total Products</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex space-x-1 overflow-x-auto">
+                <button onclick="showTab('overview')" id="tab-overview" class="tab-btn px-4 md:px-6 py-4 font-medium text-gray-600 hover:text-purple-600 whitespace-nowrap tab-active">
+                    Overview
+                </button>
+                <button onclick="showTab('database')" id="tab-database" class="tab-btn px-4 md:px-6 py-4 font-medium text-gray-600 hover:text-purple-600 whitespace-nowrap">
+                    Database
+                </button>
+                <button onclick="showTab('analysis')" id="tab-analysis" class="tab-btn px-4 md:px-6 py-4 font-medium text-gray-600 hover:text-purple-600 whitespace-nowrap">
+                    Analysis
+                </button>
+                <button onclick="showTab('charts')" id="tab-charts" class="tab-btn px-4 md:px-6 py-4 font-medium text-gray-600 hover:text-purple-600 whitespace-nowrap">
+                    Charts
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        
+        <!-- Overview Tab -->
+        <div id="content-overview" class="tab-content fade-in">
+            <!-- Loading State -->
+            <div id="overview-loading" class="text-center py-12">
+                <div class="loading mb-4"></div>
+                <p class="text-gray-500">Loading data...</p>
+            </div>
+            
+            <!-- Content -->
+            <div id="overview-content" class="hidden space-y-8">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" id="stats-cards">
+                    <!-- Will be populated by JS -->
+                </div>
+
+                <!-- Year Distribution -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">Products by Year</h2>
+                    <div class="h-64">
+                        <canvas id="yearChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Hot Tracks -->
+                <div>
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Hot Tracks Analysis</h2>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4" id="hot-tracks">
+                        <!-- Will be populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Top Countries -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">Top 10 Countries</h2>
+                    <div class="h-64">
+                        <canvas id="countryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Top Categories -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">Top 10 Categories</h2>
+                    <div class="h-64">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Tab -->
+        <div id="content-database" class="tab-content hidden">
+            <!-- Filters -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <h2 class="text-lg font-semibold mb-4">Filters</h2>
+                <div class="grid md:grid-cols-4 gap-4">
+                    <input type="text" id="search-input" placeholder="Search products or companies..." 
+                           class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    <select id="filter-year" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+                        <option value="">All Years</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                    <select id="filter-category" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="filter-region" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+                        <option value="">All Regions</option>
+                        <option value="Asia-Pacific">Asia-Pacific</option>
+                        <option value="Europe">Europe</option>
+                        <option value="North America">North America</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Results Table -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="px-6 py-4 bg-gray-50 border-b flex justify-between items-center flex-wrap gap-2">
+                    <span class="font-semibold">Results: <span id="result-count">0</span> products</span>
+                    <button onclick="downloadExcel()" class="text-purple-600 hover:text-purple-800 font-medium text-sm">
+                        Download Excel
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Year</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Country</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Award</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table" class="divide-y">
+                            <!-- Will be populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination -->
+                <div class="px-6 py-4 bg-gray-50 border-t flex justify-between items-center">
+                    <button onclick="prevPage()" id="btn-prev" class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 disabled:opacity-50">
+                        Previous
+                    </button>
+                    <span id="page-info" class="text-sm text-gray-600">Page 1 of 1</span>
+                    <button onclick="nextPage()" id="btn-next" class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 disabled:opacity-50">
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Tab -->
+        <div id="content-analysis" class="tab-content hidden">
+            <div class="space-y-8">
+                <!-- AI Penetration -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">AI Penetration Trends</h2>
+                    <div class="h-64">
+                        <canvas id="aiChart"></canvas>
+                    </div>
+                    <p class="text-gray-600 mt-4">
+                        AI-related products showed fluctuating trends. 2024 started with 7.9% AI penetration, 
+                        peaked at 9.6% in 2025, and settled at 7.5% in 2026.
+                    </p>
+                </div>
+
+                <!-- Regional Analysis -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">Regional Distribution</h2>
+                    <div class="h-64">
+                        <canvas id="regionChart"></canvas>
+                    </div>
+                    <p class="text-gray-600 mt-4">
+                        Europe leads with 40.4% of all products, followed closely by Asia-Pacific at 39.9%. 
+                        North America accounts for 19.6%.
+                    </p>
+                </div>
+
+                <!-- Key Insights -->
+                <div class="bg-purple-50 rounded-xl p-6">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">Key Insights</h2>
+                    <ul class="space-y-3 text-gray-700">
+                        <li class="flex items-start">
+                            <span class="text-purple-600 mr-2">•</span>
+                            <span><strong>China and US dominate:</strong> Together accounting for 36.5% of all products</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-600 mr-2">•</span>
+                            <span><strong>Best of Innovation shift:</strong> Only given in 2024 (36 products), shifting focus to broader recognition</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-600 mr-2">•</span>
+                            <span><strong>XR/Spatial Computing leads:</strong> 339 products, showing sustained industry interest</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-600 mr-2">•</span>
+                            <span><strong>Digital Health growth:</strong> Impressive 100% growth from 2024 to 2026</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Tab -->
+        <div id="content-charts" class="tab-content hidden">
+            <div class="space-y-8">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">Award Level Distribution</h2>
+                    <div class="h-64">
+                        <canvas id="awardChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">Hot Tracks Comparison</h2>
+                    <div class="h-64">
+                        <canvas id="tracksChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="text-center md:text-left mb-4 md:mb-0">
+                    <h3 class="text-xl font-bold">CES-AZ-INDEX</h3>
+                    <p class="text-gray-400 text-sm mt-1">Comprehensive Innovation Awards Database</p>
+                </div>
+                <div class="text-gray-400 text-sm text-center md:text-right">
+                    <p>Data Source: CES Innovation Awards Official</p>
+                    <p>Generated: 2026-01-13 | Products: 1,432</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Global variables
+        let allProducts = [];
+        let filteredProducts = [];
+        let currentPage = 1;
+        const itemsPerPage = 20;
+        let charts = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadData();
+            setupEventListeners();
+        });
+
+        // Load data from JSON files
+        async function loadData() {
+            try {
+                // Load products
+                const productsResponse = await fetch('data/products.json');
+                allProducts = await productsResponse.json();
+                filteredProducts = [...allProducts];
+                
+                // Load stats
+                const statsResponse = await fetch('data/stats.json');
+                const stats = await statsResponse.json();
+                
+                // Update UI
+                document.getElementById('total-count').textContent = stats.total.toLocaleString();
+                document.getElementById('overview-loading').classList.add('hidden');
+                document.getElementById('overview-content').classList.remove('hidden');
+                
+                // Render stats cards
+                renderStatsCards(stats);
+                
+                // Render hot tracks
+                const tracksResponse = await fetch('data/tracks.json');
+                const tracks = await tracksResponse.json();
+                renderHotTracks(tracks);
+                
+                // Load countries and categories for charts
+                const countriesResponse = await fetch('data/countries.json');
+                const countries = await countriesResponse.json();
+                
+                const categoriesResponse = await fetch('data/categories.json');
+                const categories = await categoriesResponse.json();
+                
+                // Populate category filter
+                populateCategoryFilter(categories);
+                
+                // Initialize charts
+                initCharts(stats, countries, categories, tracks);
+                
+                // Render table
+                renderTable();
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('overview-loading').innerHTML = 
+                    '<p class="text-red-500">Error loading data. Please refresh the page.</p>';
+            }
+        }
+
+        // Render stats cards
+        function renderStatsCards(stats) {
+            const cards = [
+                { label: 'Total Products', value: stats.total, color: 'bg-purple-500' },
+                { label: '2024 Products', value: stats.years['2024'], color: 'bg-red-500' },
+                { label: '2025 Products', value: stats.years['2025'], color: 'bg-indigo-500' },
+                { label: '2026 Products', value: stats.years['2026'], color: 'bg-blue-500' },
+                { label: 'Companies', value: stats.companies, color: 'bg-green-500' },
+                { label: 'Categories', value: stats.categories, color: 'bg-orange-500' },
+            ];
+            
+            const container = document.getElementById('stats-cards');
+            container.innerHTML = cards.map(card => `
+                <div class="${card.color} text-white rounded-xl p-4 card-hover">
+                    <div class="text-2xl font-bold">${card.value.toLocaleString()}</div>
+                    <div class="text-sm opacity-90">${card.label}</div>
+                </div>
+            `).join('');
+        }
+
+        // Render hot tracks
+        function renderHotTracks(tracks) {
+            const container = document.getElementById('hot-tracks');
+            const topTracks = tracks.slice(0, 8);
+            
+            container.innerHTML = topTracks.map(track => `
+                <div class="bg-white rounded-xl shadow-md p-4 card-hover">
+                    <h3 class="font-semibold text-gray-800 mb-2">${track.name}</h3>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-2xl font-bold text-purple-600">${track.count}</div>
+                            <div class="text-sm text-gray-500">Products</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-semibold ${track.growth > 0 ? 'text-green-500' : track.growth < 0 ? 'text-red-500' : 'text-gray-500'}">
+                                ${track.growth > 0 ? '+' : ''}${track.growth.toFixed(1)}%
+                            </div>
+                            <div class="text-sm text-gray-500">Top: ${track.topCountry}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Populate category filter
+        function populateCategoryFilter(categories) {
+            const select = document.getElementById('filter-category');
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.name;
+                option.textContent = cat.name;
+                select.appendChild(option);
+            });
+        }
+
+        // Initialize charts
+        function initCharts(stats, countries, categories, tracks) {
+            // Year Chart
+            const yearCtx = document.getElementById('yearChart').getContext('2d');
+            charts.year = new Chart(yearCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['2024', '2025', '2026'],
+                    datasets: [{
+                        label: 'Products',
+                        data: [stats.years['2024'], stats.years['2025'], stats.years['2026']],
+                        backgroundColor: ['#ef4444', '#6366f1', '#3b82f6'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Country Chart
+            const countryCtx = document.getElementById('countryChart').getContext('2d');
+            charts.country = new Chart(countryCtx, {
+                type: 'bar',
+                data: {
+                    labels: countries.slice(0, 10).map(c => c.name),
+                    datasets: [{
+                        label: 'Products',
+                        data: countries.slice(0, 10).map(c => c.count),
+                        backgroundColor: '#7c3aed',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Category Chart
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            charts.category = new Chart(categoryCtx, {
+                type: 'bar',
+                data: {
+                    labels: categories.slice(0, 10).map(c => c.name.length > 20 ? c.name.substring(0, 20) + '...' : c.name),
+                    datasets: [{
+                        label: 'Products',
+                        data: categories.slice(0, 10).map(c => c.count),
+                        backgroundColor: '#10b981',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // AI Penetration Chart
+            const aiCtx = document.getElementById('aiChart').getContext('2d');
+            charts.ai = new Chart(aiCtx, {
+                type: 'line',
+                data: {
+                    labels: ['2024', '2025', '2026'],
+                    datasets: [{
+                        label: 'AI Penetration (%)',
+                        data: [7.9, 9.6, 7.5],
+                        borderColor: '#7c3aed',
+                        backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, max: 15 } }
+                }
+            });
+
+            // Region Chart
+            const regionCtx = document.getElementById('regionChart').getContext('2d');
+            charts.region = new Chart(regionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Europe', 'Asia-Pacific', 'North America'],
+                    datasets: [{
+                        data: [579, 572, 281],
+                        backgroundColor: ['#ef4444', '#3b82f6', '#10b981']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Award Chart
+            const awardCtx = document.getElementById('awardChart').getContext('2d');
+            charts.award = new Chart(awardCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Honoree', 'Best of Innovation'],
+                    datasets: [{
+                        data: [1396, 36],
+                        backgroundColor: ['#10b981', '#f59e0b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Tracks Chart
+            const tracksCtx = document.getElementById('tracksChart').getContext('2d');
+            charts.tracks = new Chart(tracksCtx, {
+                type: 'bar',
+                data: {
+                    labels: tracks.slice(0, 5).map(t => t.name),
+                    datasets: [{
+                        label: 'Products',
+                        data: tracks.slice(0, 5).map(t => t.count),
+                        backgroundColor: ['#7c3aed', '#ef4444', '#3b82f6', '#10b981', '#f59e0b'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // Render table
+        function renderTable() {
+            const tbody = document.getElementById('products-table');
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = filteredProducts.slice(start, end);
+            
+            tbody.innerHTML = pageData.map(product => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3">${product['年份']}</td>
+                    <td class="px-4 py-3 font-medium">${product['公司名称']}</td>
+                    <td class="px-4 py-3">${product['产品名称']}</td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">${product['产品类别']}</span>
+                    </td>
+                    <td class="px-4 py-3">${product['所属国家']}</td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-1 rounded text-xs ${product['获奖等级'] === 'Best of Innovation' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}">
+                            ${product['获奖等级']}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+            
+            // Update pagination
+            const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+            document.getElementById('result-count').textContent = filteredProducts.length;
+            document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('btn-prev').disabled = currentPage === 1;
+            document.getElementById('btn-next').disabled = currentPage === totalPages;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('search-input').addEventListener('input', filterProducts);
+            document.getElementById('filter-year').addEventListener('change', filterProducts);
+            document.getElementById('filter-category').addEventListener('change', filterProducts);
+            document.getElementById('filter-region').addEventListener('change', filterProducts);
+        }
+
+        // Filter products
+        function filterProducts() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const year = document.getElementById('filter-year').value;
+            const category = document.getElementById('filter-category').value;
+            const region = document.getElementById('filter-region').value;
+            
+            filteredProducts = allProducts.filter(product => {
+                const matchesSearch = !search || 
+                    product['产品名称'].toLowerCase().includes(search) ||
+                    product['公司名称'].toLowerCase().includes(search);
+                const matchesYear = !year || product['年份'].toString() === year;
+                const matchesCategory = !category || product['产品类别'] === category;
+                const matchesRegion = !region || product['所属地区'] === region;
+                return matchesSearch && matchesYear && matchesCategory && matchesRegion;
+            });
+            
+            currentPage = 1;
+            renderTable();
+        }
+
+        // Pagination
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        }
+
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('tab-active');
+            });
+            
+            // Show selected tab
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}`).classList.add('tab-active');
+        }
+
+        // Download Excel (placeholder)
+        function downloadExcel() {
+            alert('Excel download feature coming soon! Contact us for the full database file.');
+        }
+    </script>
+</body>
+</html>
