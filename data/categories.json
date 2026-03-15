@@ -1,0 +1,77 @@
+[
+  {
+    "name": "Gaming & Esports",
+    "count": 51,
+    "companies": 36
+  },
+  {
+    "name": "Financial Technologies",
+    "count": 50,
+    "companies": 38
+  },
+  {
+    "name": "Smart Communities",
+    "count": 50,
+    "companies": 38
+  },
+  {
+    "name": "Industrial Equipment and Machinery",
+    "count": 49,
+    "companies": 38
+  },
+  {
+    "name": "Parent Tech",
+    "count": 47,
+    "companies": 36
+  },
+  {
+    "name": "Products in Support of Human Security for All",
+    "count": 46,
+    "companies": 36
+  },
+  {
+    "name": "Digital Imaging/Photography",
+    "count": 46,
+    "companies": 30
+  },
+  {
+    "name": "Mobile Devices, Accessories & Apps",
+    "count": 44,
+    "companies": 32
+  },
+  {
+    "name": "Enterprise Tech",
+    "count": 43,
+    "companies": 34
+  },
+  {
+    "name": "Food & AgTech",
+    "count": 43,
+    "companies": 31
+  },
+  {
+    "name": "Artificial Intelligence",
+    "count": 43,
+    "companies": 33
+  },
+  {
+    "name": "3D Printing",
+    "count": 43,
+    "companies": 33
+  },
+  {
+    "name": "Smart Cities",
+    "count": 42,
+    "companies": 36
+  },
+  {
+    "name": "Audio/Video Components & Accessories",
+    "count": 41,
+    "companies": 38
+  },
+  {
+    "name": "Computer Hardware & Components",
+    "count": 41,
+    "companies": 37
+  }
+]
