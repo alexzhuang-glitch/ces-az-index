@@ -1,0 +1,16 @@
+{
+  "total": 1432,
+  "years": {
+    "2024": 522,
+    "2025": 458,
+    "2026": 452
+  },
+  "companies": 82,
+  "categories": 36,
+  "countries": 12,
+  "regions": 3,
+  "award_distribution": {
+    "Best of Innovation": 36,
+    "Honoree": 1396
+  }
+}
