@@ -1,0 +1,90 @@
+[
+  {
+    "name": "AI人工智能",
+    "count": 119,
+    "growth": -17.073170731707318,
+    "topCountry": "China",
+    "yearly": {
+      "2024": 41,
+      "2025": 44,
+      "2026": 34
+    }
+  },
+  {
+    "name": "机器人",
+    "count": 39,
+    "growth": -26.666666666666668,
+    "topCountry": "China",
+    "yearly": {
+      "2024": 15,
+      "2025": 13,
+      "2026": 11
+    }
+  },
+  {
+    "name": "可持续能源",
+    "count": 36,
+    "growth": -56.25,
+    "topCountry": "China",
+    "yearly": {
+      "2024": 16,
+      "2025": 13,
+      "2026": 7
+    }
+  },
+  {
+    "name": "XR/元宇宙",
+    "count": 339,
+    "growth": -0.8547008547008548,
+    "topCountry": "United States",
+    "yearly": {
+      "2024": 117,
+      "2025": 106,
+      "2026": 116
+    }
+  },
+  {
+    "name": "数字健康",
+    "count": 30,
+    "growth": 100.0,
+    "topCountry": "China",
+    "yearly": {
+      "2024": 5,
+      "2025": 15,
+      "2026": 10
+    }
+  },
+  {
+    "name": "智能家居",
+    "count": 38,
+    "growth": 30.0,
+    "topCountry": "Japan",
+    "yearly": {
+      "2024": 10,
+      "2025": 15,
+      "2026": 13
+    }
+  },
+  {
+    "name": "电动汽车",
+    "count": 82,
+    "growth": -37.5,
+    "topCountry": "Japan",
+    "yearly": {
+      "2024": 40,
+      "2025": 17,
+      "2026": 25
+    }
+  },
+  {
+    "name": "可穿戴设备",
+    "count": 38,
+    "growth": -28.57142857142857,
+    "topCountry": "United States",
+    "yearly": {
+      "2024": 14,
+      "2025": 14,
+      "2026": 10
+    }
+  }
+]
